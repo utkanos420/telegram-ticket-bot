@@ -23,6 +23,10 @@ pydantic==2.10.6
 pydantic-settings==2.8.1
 pydantic_core==2.27.2
 python-dotenv==1.0.1
+<<<<<<< HEAD
+=======
+redis==5.2.1
+>>>>>>> 000f85e (Бот переделан под ТЗ)
 SQLAlchemy==2.0.38
 typing_extensions==4.12.2
 win32_setctime==1.2.0

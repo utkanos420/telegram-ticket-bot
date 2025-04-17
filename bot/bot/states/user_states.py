@@ -5,6 +5,7 @@ from aiogram.filters import Command, StateFilter
 
 class UserStates(StatesGroup):
     global_state = State()
+    get_password = State()
 
 
 class Anketa(StatesGroup):

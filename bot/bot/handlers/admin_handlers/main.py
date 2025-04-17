@@ -1,3 +1,6 @@
+"""
+Основной модуль состояний администратора, обрабатывающий вводы администратора
+"""
 from loguru import logger
 from aiogram import Router, types, F
 from aiogram.types import CallbackQuery
@@ -8,7 +11,11 @@ from keyboards.dynamic_keyboards import mute_user_by_id
 
 from bot_utils.sendreport import notice_muted_user
 
+from templates.template_engine import render_template
+
 from states.admin_states import AdminStates
+
+db_methods = DBMethods()
 
 
 logger.remove()
@@ -51,3 +58,24 @@ async def mute_user(callback: CallbackQuery, state: FSMContext):
     await db.mute_user_by_id(user_id=user_id)
     await callback.message.answer(f"Пользователь с id {user_id} заблокирован")
     await notice_muted_user(user_id)
+
+
+@admin_router.message(Command("unmute"), StateFilter(AdminStates.global_state))
+async def create_report_from_command(message: types.Message, state: FSMContext):
+
+    if message.chat.type != "private" or await db_methods.user_is_muted(message.from_user.id):
+        return
+
+    await message.answer(render_template("admin_answers/unmute.html"), parse_mode="HTML")
+    await state.set_state(AdminStates.get_user_id)
+
+
+@admin_router.message(F.text, StateFilter(AdminStates.get_user_id))
+async def create_report_from_command(message: types.Message, state: FSMContext):
+
+    if message.chat.type != "private" or await db_methods.user_is_muted(message.from_user.id):
+        return
+
+    await db_methods.unmute_user_by_id(user_id=message.text)
+    await message.answer("Пользователь разблокирован")
+    await state.set_state(AdminStates.global_state)

@@ -5,3 +5,4 @@ from aiogram.filters import Command, StateFilter
 
 class AdminStates(StatesGroup):
     global_state = State()
+    get_user_id = State()

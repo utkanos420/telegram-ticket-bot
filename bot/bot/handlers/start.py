@@ -1,8 +1,15 @@
+"""
+Модуль, отвечающий за обработку пользователя до передачи в стейты по роутерам
+
+Мидлварь проверяет, есть ли в БД пользователь, и если нет, создает
+
+Мидлварь проверяет, указан ли ID пользователя как ID администратора, и если да, заранее переводит его в состояния администратора
+"""
 from loguru import logger
 from datetime import datetime
 from typing import Callable, Any, Awaitable, Dict
 from random import randint
-from aiogram import Router, types
+from aiogram import Router, types, F
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import TelegramObject, Message
@@ -73,6 +80,18 @@ start_router.message.middleware(UserInternalIdMiddleware())
 
 
 @start_router.message(CommandStart(), StateFilter(None))
+async def start(message: types.Message, state: FSMContext):
+
+    if message.chat.type != "private":
+        return
+
+    if message.from_user.id in admin_ids:
+        await message.answer(render_template("admin_answers/welcome.html"), parse_mode="HTML")
+    else:
+        await message.answer(render_template("user_answers/welcome.html"), parse_mode="HTML", reply_markup=create_report_keyboard())
+
+
+@start_router.message(F.text, StateFilter(None))
 async def start(message: types.Message, state: FSMContext):
 
     if message.chat.type != "private":

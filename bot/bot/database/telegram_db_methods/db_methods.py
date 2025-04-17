@@ -1,3 +1,6 @@
+"""
+Основной модуль обращений к бд, в дальнейшем в логике бота используются экземпляры от класса DBMethods
+"""
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -70,6 +73,18 @@ class DBMethods:
                 return False
 
             user.is_muted = True
+            await session.commit()
+            return True
+
+    async def unmute_user_by_id(self, user_id: int) -> bool:
+        async with self.session() as session:
+            result = await session.execute(select(User).filter_by(user_id=user_id))
+            user = result.scalars().first()
+
+            if user is None:
+                return False
+
+            user.is_muted = False
             await session.commit()
             return True
 

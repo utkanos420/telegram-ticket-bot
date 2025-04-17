@@ -1,3 +1,6 @@
+"""
+Основной файл, точка входа, который подтягивает загрузчик и передает в функцию запуска
+"""
 import asyncio
 from configs.config import settings
 from loader import bot, dp
